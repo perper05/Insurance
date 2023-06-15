@@ -1,0 +1,33 @@
+# Task 1.Company wants to see information about the weekdays. They want to see each type of accident and each type of accidents weekday count of accidents
+
+SELECT
+  TYPEOFACCIDENT,
+  COUNT(TYPEOFACCIDENT) AS num_of_accidents,
+  FORMAT_DATE('%A', (PARSE_DATE('%d.%m.%Y',DATE))) AS week_day
+FROM `united-concord-372214.Accident_analysis.Insurance`
+GROUP BY TYPEOFACCIDENT, week_day
+ORDER BY TYPEOFACCIDENT, week_day
+
+
+#Task 2.Now need to show information about the south and north region. Company wants to see the average speed of each region.
+
+WITH north_reg AS(
+   SELECT 
+      AVG(CAST (num_speed AS INT64)) AS north_avg_speed
+   FROM `united-concord-372214.Accident_analysis.Insurance`, UNNEST (SPLIT(SPEED, ' ')) AS num_speed
+   WHERE REGIONNAME LIKE '%NORTH%' AND num_speed != 'km/hr'
+)
+,
+south_reg AS(
+SELECT
+   AVG(CAST (num_speed AS INT64)) AS south_avg_speed
+FROM `united-concord-372214.Accident_analysis.Insurance`, UNNEST (SPLIT(SPEED, ' ')) AS num_speed
+WHERE  REGIONNAME LIKE '%SOUTH%' AND num_speed != 'km/hr' 
+)
+
+SELECT
+  north_reg.north_avg_speed,
+  south_reg.south_avg_speed
+FROM north_reg, south_reg
+
+
